@@ -19,34 +19,6 @@ public partial class meshinterpolation : Node
 
 		CallDeferred("MoveNode");
 	}
-
-	public void MoveNode()
-	{
-		int a;
-		int index;
-		switch (UpdateLast)
-		{
-			case true:
-				a = Mathf.Max(target.GetIndex(), mesh.GetIndex()) + 1;
-				if (movementSource != null)
-					index = Mathf.Max(a, movementSource.GetIndex() + 1);
-				else
-					index = a;
-				break;
-			case false:
-				a = Mathf.Min(target.GetIndex(), mesh.GetIndex()) + 1;
-				if (movementSource != null)
-					index = Mathf.Min(a, movementSource.GetIndex() + 1);
-				else
-					index = a;
-				break;
-		}
-
-		int maxIndex = GetParent().GetChildCount();
-		int clampedIndex = Mathf.Clamp(index, 0, maxIndex);
-		GetParent().MoveChild(this, clampedIndex);
-	}
-
 	public override void _Process(double delta)
 	{
 		UpdatePosition();
@@ -56,6 +28,19 @@ public partial class meshinterpolation : Node
 	{
 		UpdateTransforms();
 	}
+
+	// Move node in the scene hierarchy
+	public void MoveNode()
+	{
+		int tempIndex = Mathf.Max(target.GetIndex(), mesh.GetIndex()) + 1;
+
+		int index = (movementSource == null) ? tempIndex : UpdateLast ? Mathf.Max(tempIndex, movementSource.GetIndex() + 1) : Mathf.Min(tempIndex, movementSource.GetIndex() + 1);
+
+		int maxIndex = GetParent().GetChildCount();
+		int clampedIndex = Mathf.Clamp(index, 0, maxIndex);
+		GetParent().MoveChild(this, clampedIndex);
+	}
+
 
 	public void UpdateTransforms()
 	{
